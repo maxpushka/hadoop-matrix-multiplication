@@ -2,6 +2,9 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Random;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class MatrixGeneratorCLI {
 
@@ -29,15 +32,23 @@ public class MatrixGeneratorCLI {
     }
 
     public static void main(String[] args) {
-        if (args.length != 3) {
-            System.out.println("Usage: java MatrixGeneratorCLI <rowsA> <colsA_rowsB> <colsB>");
+        if (args.length != 4) {
+            System.out.println("Usage: java MatrixGeneratorCLI <output_dir> <rowsA> <colsA_rowsB> <colsB>");
             System.exit(1);
         }
 
         // Parse command-line arguments
-        int rowsA = Integer.parseInt(args[0]);
-        int colsA_rowsB = Integer.parseInt(args[1]); // This is colsA (for matrix A) and rowsB (for matrix B)
-        int colsB = Integer.parseInt(args[2]);
+        String outputDir = args[0];
+        // Check if the output directory exists and is a directory
+        Path outputPath = Paths.get(outputDir);
+        if (!Files.exists(outputPath) || !Files.isDirectory(outputPath)) {
+            System.err.println("Error: Output directory does not exist or is not a directory: " + outputDir);
+            System.exit(1);
+        }
+
+        int rowsA = Integer.parseInt(args[1]);
+        int colsA_rowsB = Integer.parseInt(args[2]); // This is colsA (for matrix A) and rowsB (for matrix B)
+        int colsB = Integer.parseInt(args[3]);
 
         // Validate dimensions for matrix multiplication
         if (rowsA <= 0 || colsA_rowsB <= 0 || colsB <= 0) {
@@ -50,10 +61,13 @@ public class MatrixGeneratorCLI {
         int[][] matrixA = generateMatrix(rowsA, colsA_rowsB);
         int[][] matrixB = generateMatrix(colsA_rowsB, colsB);
 
-        // Write the matrices to files in the desired format
+        // Write the matrices to the respective files
         try {
-            writeMatrixToFile(matrixA, "input/a.txt", 'A');
-            writeMatrixToFile(matrixB, "input/b.txt", 'B');
+            // Dynamically construct file paths for a.txt and b.txt
+            Path aFilePath = outputPath.resolve("a.txt");
+            Path bFilePath = outputPath.resolve("b.txt");
+            writeMatrixToFile(matrixA, aFilePath.toString(), 'A');
+            writeMatrixToFile(matrixB, bFilePath.toString(), 'B');
             System.out.println("Matrices have been written to input/a.txt and input/b.txt in the desired format.");
         } catch (IOException e) {
             System.err.println("Error writing the matrices to files: " + e.getMessage());

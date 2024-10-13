@@ -24,7 +24,8 @@ build-gen: $(UTIL_FILES)
 	javac -d $(BUILD_DIR) $(UTIL_FILES)
 
 run-gen: build-gen
-	java -cp $(BUILD_DIR) MatrixGeneratorCLI ${MATRIX_SIZES}
+	mkdir -p $(INPUT_DIR)
+	java -cp $(BUILD_DIR) MatrixGeneratorCLI ${INPUT_DIR} ${MATRIX_SIZES}
 
 # Build main application
 build: $(SRC_FILES)
